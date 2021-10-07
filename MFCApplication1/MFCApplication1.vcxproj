@@ -190,6 +190,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="USER_BAR_CLASS_DLG.h" />
+    <ClInclude Include="USER_DEFINE.h" />
     <ClInclude Include="USER_RGB_HSV_CLASS.h" />
   </ItemGroup>
   <ItemGroup>

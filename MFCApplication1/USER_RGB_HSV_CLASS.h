@@ -1,25 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include "USER_DEFINE.h"
 using namespace std;
-
-/********************结构体定义区*********************/
-
-//RGB结构体定义
-typedef struct
-{
-    int r;
-    int g;
-    int b;
-} RGB_STRUCT;
-
-//HSV结构体定义
-typedef struct
-{
-    int h;
-    float s;
-    float v;
-} HSV_STRUCT;
 
 
 /********************类定义区*********************/

@@ -90,20 +90,24 @@ HSV_STRUCT USER_RGB_HSV_CLASS:: RGB2HSV(RGB_STRUCT rgb)
 }
 
 
-//RGB转换为HSV控空间的函数
+//RGB转换为HSV空间的函数
 // 参照：
 //ppt
 
 RGB_STRUCT USER_RGB_HSV_CLASS::HSV2RGB(HSV_STRUCT hsv)
 {
-    int H;
-    float S, V;
+    int H=0;
+    float S, V=0;
     int p, q, t,i,f;
-    RGB_STRUCT rgb;
+    RGB_STRUCT rgb = {0,0,0};
 
     if (360 == hsv.h)
     {
         H = 0;
+    }
+    else
+    {
+        H = hsv.h;
     }
     S = hsv.s;
     V = hsv.v;

@@ -39,6 +39,9 @@
     <ClInclude Include="USER_BAR_CLASS_DLG.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="USER_DEFINE.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFCApplication1.cpp">

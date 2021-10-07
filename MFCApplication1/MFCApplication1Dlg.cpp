@@ -12,15 +12,18 @@
 #define new DEBUG_NEW
 #endif
 
+/**************自定义的类调用**************/
 
-/***************自定义的类调用***************/
 #include  "USER_BAR_CLASS_DLG.h"
 #include "USER_RGB_HSV_CLASS.h"
 //#include "stdlib.h"
 
 /***************内部变量声明***************/
+
 bmpData bmpdata;
 
+/***************内部函数声明***************/
+void Cal_HSV_Scale(HSV_SLIDER_STRUCT hsv_slider_struct,float *hScale, float* sScale, float* vScale);  //调节滚动条实际上是在调节缩放系数
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -78,6 +81,7 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_OPENBMP, &CMFCApplication1Dlg::OnBnClickedButtonOpenbmp)
 	ON_WM_MOUSEMOVE()
 	ON_BN_CLICKED(IDC_BUTTON_HSV2RGB, &CMFCApplication1Dlg::OnBnClickedButtonHsv2rgb)
+	ON_MESSAGE(WM_GET_DIALOG_HSV_SLIDER_VAL, UserMessageHandler) //用户自定义的消息标识和函数的绑定
 END_MESSAGE_MAP()
 
 
@@ -168,10 +172,12 @@ HCURSOR CMFCApplication1Dlg::OnQueryDragIcon()
 
 
 
+//读取图片，readBmp按键按下响应函数
+
 void CMFCApplication1Dlg::OnBnClickedButtonOpenbmp()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	// 
+	
 	//打开文件 
 	CString filter = (CString)"图像文件(*.bmp)|*.bmp;*.BMP||";//指明可供选择的文件类型和相应的扩展名
 	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, NULL);  //打开文件
@@ -202,8 +208,8 @@ void CMFCApplication1Dlg::OnBnClickedButtonOpenbmp()
 			memcpy(pBmpInfo, &bmpdata.bmpInfo, sizeof(BITMAPINFOHEADER));  //存储图像信息头内容
 			DWORD dataBytes = bmpdata.bmpHeader.bfSize - bmpdata.bmpHeader.bfOffBits;//图像数据大小，单位为字节
 			bmpdata.pBmpData = (BYTE*)new char[dataBytes];
-			//bmpdata.bmpFile.Seek(bmpdata.bmpHeader.bfOffBits,0);//这一步非常重要，必须要把文件指针偏移
-			bmpdata.bmpFile.Read(bmpdata.pBmpData, dataBytes);  //存储图像数据
+			bmpdata.bmpFile.Seek(bmpdata.bmpHeader.bfOffBits,0);//这一步非常重要，必须要把文件指针偏移
+			bmpdata.bmpFile.Read(bmpdata.pBmpData, dataBytes);  //存储图像数据(以文件指针为起点开始读dataBytes个数据)
 			bmpdata.bmpFile.Close();
 
 			//显示图像1	
@@ -230,6 +236,7 @@ void CMFCApplication1Dlg::OnBnClickedButtonOpenbmp()
 }
 
 
+//鼠标在屏幕中移动的事件响应函数
 void CMFCApplication1Dlg::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
@@ -257,17 +264,17 @@ void CMFCApplication1Dlg::OnMouseMove(UINT nFlags, CPoint point)
 		(point.x >= 683 && point.x <= 683 + width && point.y >= 76 && point.y <= 76 + high))
 	{
 		TRACE("捕捉到了鼠标移动，当前位置 X = %d  Y = %d \n\n", point.x, point.y);
-		SetDlgItemInt(IDC_EDIT_X, point.x);     //写入坐标值x
-		SetDlgItemInt(IDC_EDIT_Y, point.y);     //写入坐标值y
+		SetDlgItemInt(IDC_EDIT_X, point.x);			 //写入坐标值x
+		SetDlgItemInt(IDC_EDIT_Y, point.y);			 //写入坐标值y
 
 		CWnd* pWnd = GetDlgItem(IDC_STATIC_PICTURE); //获得pictrue控件窗口的句柄
-		CDC* pDC = pWnd->GetDC(); //获得pictrue控件的DC	
+		CDC* pDC = pWnd->GetDC();					 //获得pictrue控件的DC	
 		HDC hDC = pDC->GetSafeHdc(); ;
 		COLORREF rgb = ::GetPixel(hDC, point.x - 12, point.y - 76);  //相对坐标
 
 
 		RGB_STRUCT rgbStruct;
-		rgbStruct.r = GetRValue(rgb);     //获得灰度分量
+		rgbStruct.r = GetRValue(rgb);			    //获得灰度分量
 		rgbStruct.g = GetGValue(rgb);
 		rgbStruct.b = GetBValue(rgb);
 		SetDlgItemInt(IDC_EDIT_R, rgbStruct.r);     //写入灰度分量R
@@ -275,44 +282,139 @@ void CMFCApplication1Dlg::OnMouseMove(UINT nFlags, CPoint point)
 		SetDlgItemInt(IDC_EDIT_B, rgbStruct.b);     //写入灰度分量B
 
 		//显示该点的hsv值
-		USER_RGB_HSV_CLASS userClass_rgb_hsv;
+		USER_RGB_HSV_CLASS userClass_rgb_hsv;       //用户自定义的 hsv—rgb 转换类
 		HSV_STRUCT hsvStruct;
 		hsvStruct = userClass_rgb_hsv.RGB2HSV(rgbStruct);
 
 		CString str;
-		SetDlgItemInt(IDC_EDIT_H, hsvStruct.h); //写入灰度分量R
+		SetDlgItemInt(IDC_EDIT_H, hsvStruct.h);     //写入灰度分量R
 		str.Format(_T("%.5f"), hsvStruct.s);
-		SetDlgItemText(IDC_EDIT_S, str);        //写入灰度分量G
+		SetDlgItemText(IDC_EDIT_S, str);			//写入灰度分量G
 		str.Format(_T("%.5f"), hsvStruct.v);
-		SetDlgItemText(IDC_EDIT_V, str);        //写入灰度分量B
+		SetDlgItemText(IDC_EDIT_V, str);			//写入灰度分量B
 
 	}
 	else
 	{
-		SetDlgItemInt(IDC_EDIT_X, 0);     //写入坐标值x
-		SetDlgItemInt(IDC_EDIT_Y, 0);     //写入坐标值y
-		SetDlgItemInt(IDC_EDIT_R, 0);     //写入灰度分量R
-		SetDlgItemInt(IDC_EDIT_G, 0);     //写入灰度分量G
-		SetDlgItemInt(IDC_EDIT_B, 0);     //写入灰度分量B
-		SetDlgItemInt(IDC_EDIT_H, 0);     //写入灰度分量H
-		SetDlgItemInt(IDC_EDIT_S, 0);     //写入灰度分量S
-		SetDlgItemInt(IDC_EDIT_V, 0);     //写入灰度分量V
+		SetDlgItemInt(IDC_EDIT_X, 0);				//写入坐标值x
+		SetDlgItemInt(IDC_EDIT_Y, 0);				//写入坐标值y
+		SetDlgItemInt(IDC_EDIT_R, 0);				//写入灰度分量R
+		SetDlgItemInt(IDC_EDIT_G, 0);				//写入灰度分量G
+		SetDlgItemInt(IDC_EDIT_B, 0);				//写入灰度分量B
+		SetDlgItemInt(IDC_EDIT_H, 0);				//写入灰度分量H
+		SetDlgItemInt(IDC_EDIT_S, 0);				//写入灰度分量S
+		SetDlgItemInt(IDC_EDIT_V, 0);				//写入灰度分量V
 	}
 }
 
 
+//rgb2hsv按键按下响应函数
 void CMFCApplication1Dlg::OnBnClickedButtonHsv2rgb()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	
+	// guangjie2333的设计
+	
 	// 按键按下后做两件事 1.读取图像 2.打开新的对话框
 
 	//将按键按下和新的Dialog联系
 	USER_BAR_CLASS_DLG dlg;
+	dlg.phwnd = m_hWnd;
 	dlg.DoModal();
-	while (1)
+
+
+	                                   
+}
+
+//用户自定义的消息处理函数
+LRESULT CMFCApplication1Dlg::UserMessageHandler(WPARAM w, LPARAM l)
+{
+	// guangjie2333的设计
+
+	/*按理说 WPARAM w应该是一个实际值，但是我通过指针转换的方式传入了地址
+	  现在拿到了地址后，我有两件事情要做 ： 
+	  1. 把地址的解析方式从(WPARAM*) 改成 (HSV_SLIDER_STRUCT*)
+	  2. 把结构体中的值取出来
+	  */
+	HSV_SLIDER_STRUCT* hsv_slider_val = (HSV_SLIDER_STRUCT*)w; 
+
+	float hScale, sScale, vScale;
+	int r, g, b;
+
+	/*为了避免对原数据进行修改，新建一个图像存储结构体
+	  
+	  之后需要做的就是 ：
+	  1.将原数据拷贝一份
+	  2.将原rgb数据转换成hsv数据
+	  3.再将hsv数据转换成rgb显示
+	  
+	  需要注意的是：1.我默认bmp图像是真彩色，24bit ，B G R三通道，不带保留项的
+					2.图像是每三个数据构成一个像素点，按 B G R顺序组合而成的
+					3.适用大部分的bmp图像
+	  
+	  */
+
+	int pixel_count = bmpdata.bmpInfo.biWidth * bmpdata.bmpInfo.biHeight; //通过 宽 * 高 计算像素个数
+
+	USER_RGB_HSV_CLASS userClass_rgb_hsv;                           //用户自定义的 hsv—rgb 转换类
+	HSV_STRUCT hsv_struct;                                          //用户自定义的 hsv结构体
+	RGB_STRUCT rgb_struct;											//用户自定义的 rgb结构体
+
+	//拷贝原数据
+	DWORD dataBytes = bmpdata.bmpHeader.bfSize - bmpdata.bmpHeader.bfOffBits;//图像数据大小，单位为字节
+	BYTE* pixelArray = (BYTE*)new char[dataBytes];
+	for (int i = 0; i < dataBytes; i++)
 	{
+		pixelArray[i] = bmpdata.pBmpData[i];
+	}
+
+
+	Cal_HSV_Scale(*hsv_slider_val, &hScale, &sScale, &vScale);      //计算缩放系数
+
+	//逐个像素进行转换
+	for (int i = 0; i < pixel_count; i++)
+	{
+		rgb_struct.b = pixelArray[i + 0];
+		rgb_struct.g = pixelArray[i + 1];
+		rgb_struct.r = pixelArray[i + 2];
+
+		hsv_struct = userClass_rgb_hsv.RGB2HSV(rgb_struct);			//单像素RGB转HSV
+
+		hsv_struct.h = (int)hsv_struct.h * hScale;					//滚动条的意义在于对原hsv进行缩放
+		hsv_struct.s = (float)hsv_struct.s * sScale;
+		hsv_struct.v = (float)hsv_struct.v * vScale;
+
+		rgb_struct = userClass_rgb_hsv.HSV2RGB(hsv_struct);         //将缩放后的hsv重新转换成rgb
+
+		pixelArray[i + 0] = rgb_struct.b;							//将rgb数据还原
+		pixelArray[i + 1] = rgb_struct.g;
+		pixelArray[i + 2] = rgb_struct.r;
 
 	}
 
-	                                   
+	//显示图像2	
+	CWnd* pWnd = GetDlgItem(IDC_STATIC_PICTURE2);					//获得pictrue控件窗口的句柄	
+	((CStatic*)GetDlgItem(IDC_STATIC_PICTURE2))->SetBitmap(NULL);	//清除原有图像
+	CRect rect;
+	pWnd->GetClientRect(&rect);										//获得pictrue控件所在的矩形区域			
+	CDC* pDC = pWnd->GetDC();										//获得pictrue控件的DC			
+	pDC->SetStretchBltMode(COLORONCOLOR);
+
+	BITMAPINFO* pBmpInfo = (BITMAPINFO*)new char[sizeof(BITMAPINFOHEADER)];
+	memcpy(pBmpInfo, &bmpdata.bmpInfo, sizeof(BITMAPINFOHEADER)); 
+	StretchDIBits(pDC->GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0, bmpdata.bmpInfo.biWidth, bmpdata.bmpInfo.biHeight, pixelArray, pBmpInfo, DIB_RGB_COLORS, SRCCOPY);
+
+	TRACE("数据传输成功了吗？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？");
+	return LRESULT();
+}
+
+
+//内部函数实现
+void Cal_HSV_Scale(HSV_SLIDER_STRUCT hsv_slider_struct, float* hScale, float* sScale, float* vScale)
+{
+	// guangjie2333的设计
+
+	*hScale = (hsv_slider_struct.H_slider - 50) / 50 + 1; //50作为基准，小于50就按比例缩小，大于50按比例放大
+	*sScale = (hsv_slider_struct.S_slider - 50) / 50 + 1;
+	*vScale = (hsv_slider_struct.V_slider - 50) / 50 + 1;
 }

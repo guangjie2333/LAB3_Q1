@@ -51,20 +51,27 @@ END_MESSAGE_MAP()
 void USER_BAR_CLASS_DLG::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
 	UpdateData(TRUE);
+	HSV_SLIDER_STRUCT hsv_slider_struct;
 
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	CSliderCtrl* pSlidCtrl = (CSliderCtrl*)GetDlgItem(IDC_SLIDER_H);
 	//m_int 即为当前滑块的值。
 	int m_int =  pSlidCtrl->GetPos();//取得当前位置值  
-	SetDlgItemInt(IDC_EDIT_Slider_H, m_int); //很奇怪，显示报错还能正常运行
+	SetDlgItemInt(IDC_EDIT_Slider_H, m_int); 
+	hsv_slider_struct.H_slider = m_int;       //将当前滚动条h值存入结构体
 
 	pSlidCtrl = (CSliderCtrl*)GetDlgItem(IDC_SLIDER_S);
 	m_int = pSlidCtrl->GetPos();//取得当前位置值  
 	SetDlgItemInt(IDC_EDIT_Slider_S, m_int);
+	hsv_slider_struct.S_slider = m_int;            //将当前s值存入结构体
 
 	pSlidCtrl = (CSliderCtrl*)GetDlgItem(IDC_SLIDER_V);
 	m_int = pSlidCtrl->GetPos();//取得当前位置值  
 	SetDlgItemInt(IDC_EDIT_Slider_V, m_int);
+	hsv_slider_struct.V_slider = m_int;            //将当前h值存入结构体
+
+	// 传值 
+	::PostMessage(phwnd, WM_GET_DIALOG_HSV_SLIDER_VAL,(WPARAM) &hsv_slider_struct, 0);
 
 	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
 	UpdateData(FALSE);
@@ -76,9 +83,9 @@ void USER_BAR_CLASS_DLG::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollB
 BOOL USER_BAR_CLASS_DLG::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-	m_SliderH.SetRange(0, 100);//设置滑动范围为1到100
-	m_SliderS.SetRange(0, 100);//设置滑动范围为1到100
-	m_SliderV.SetRange(0, 100);//设置滑动范围为1到100
+	m_SliderH.SetRange(0, 100);//设置滑动范围为0到100
+	m_SliderS.SetRange(0, 100);//设置滑动范围为0到100
+	m_SliderV.SetRange(0, 100);//设置滑动范围为0到100
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 异常: OCX 属性页应返回 FALSE

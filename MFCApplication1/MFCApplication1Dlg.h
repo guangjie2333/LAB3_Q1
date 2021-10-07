@@ -3,14 +3,8 @@
 //
 
 #pragma once
+#include "USER_DEFINE.h"
 
-typedef struct 
-{
-	BYTE* pBmpData;             //图像数据
-	BITMAPFILEHEADER bmpHeader; //文件头
-	BITMAPINFOHEADER bmpInfo;   //信息头
-	CFile bmpFile;              //记录打开文件
-}bmpData;
 
 // CMFCApplication1Dlg 对话框
 class CMFCApplication1Dlg : public CDialogEx
@@ -37,9 +31,11 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButtonOpenbmp();
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnBnClickedButtonHsv2rgb();
+	LRESULT UserMessageHandler(WPARAM w, LPARAM l); //自己定义的消息处理函数
 };

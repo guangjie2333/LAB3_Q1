@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+#include "USER_DEFINE.h"
 
 // USER_BAR_CLASS_DLG 对话框
 
@@ -10,7 +10,7 @@ public:
 	CSliderCtrl	m_SliderS;
 	CSliderCtrl	m_SliderH;
 
-	BOOL SLIDER_FLAG = 0; //用来记录
+	HWND phwnd;				//窗口变量，用于两个窗口之间传输值
 
 	DECLARE_DYNAMIC(USER_BAR_CLASS_DLG)
 
