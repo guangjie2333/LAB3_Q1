@@ -1,4 +1,11 @@
 ﻿#pragma once
+/*
+作者 ：guangjie2333
+时间 ：2021.10.5
+单位 ：SZU
+版本 ：V1.0.0
+*/
+
 #include "USER_DEFINE.h"
 
 // USER_BAR_CLASS_DLG 对话框

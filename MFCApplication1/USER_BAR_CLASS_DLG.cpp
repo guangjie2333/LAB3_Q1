@@ -1,5 +1,11 @@
 ﻿// USER_BAR_CLASS_DLG.cpp: 实现文件
-//
+
+/*
+作者 ：guangjie2333
+时间 ：2021.10.5
+单位 ：SZU
+版本 ：V1.0.0
+*/
 
 #include "pch.h"
 #include "MFCApplication1.h"
@@ -71,7 +77,7 @@ void USER_BAR_CLASS_DLG::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollB
 	hsv_slider_struct.V_slider = m_int;            //将当前h值存入结构体
 
 	// 传值 
-	::PostMessage(phwnd, WM_GET_DIALOG_HSV_SLIDER_VAL,(WPARAM) &hsv_slider_struct, 0);
+	::SendMessage(phwnd, WM_GET_DIALOG_HSV_SLIDER_VAL,(WPARAM)&hsv_slider_struct, 0);
 
 	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
 	UpdateData(FALSE);
@@ -83,9 +89,17 @@ void USER_BAR_CLASS_DLG::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollB
 BOOL USER_BAR_CLASS_DLG::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-	m_SliderH.SetRange(0, 100);//设置滑动范围为0到100
-	m_SliderS.SetRange(0, 100);//设置滑动范围为0到100
-	m_SliderV.SetRange(0, 100);//设置滑动范围为0到100
+	m_SliderH.SetRange(0, 100);		//设置滑动范围为0到100
+	m_SliderS.SetRange(0, 100);
+	m_SliderV.SetRange(0, 100);
+
+	m_SliderH.SetTicFreq(1);		//设置滑动刻度
+	m_SliderS.SetTicFreq(1);
+	m_SliderV.SetTicFreq(1);
+
+	m_SliderH.SetPos(50);			//设置初始刻度
+	m_SliderS.SetPos(50);
+	m_SliderV.SetPos(50);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 异常: OCX 属性页应返回 FALSE

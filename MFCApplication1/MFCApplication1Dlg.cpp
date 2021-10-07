@@ -1,6 +1,12 @@
 ﻿
 // MFCApplication1Dlg.cpp: 实现文件
-//
+
+/*
+作者 ：guangjie2333
+时间 ：2021.10.5
+单位 ：SZU
+版本 ：V1.0.0
+*/
 
 #include "pch.h"
 #include "framework.h"
@@ -21,6 +27,8 @@
 /***************内部变量声明***************/
 
 bmpData bmpdata;
+CString BmpName;
+CString EntName;
 
 /***************内部函数声明***************/
 void Cal_HSV_Scale(HSV_SLIDER_STRUCT hsv_slider_struct,float *hScale, float* sScale, float* vScale);  //调节滚动条实际上是在调节缩放系数
@@ -186,8 +194,8 @@ void CMFCApplication1Dlg::OnBnClickedButtonOpenbmp()
 	if (dlg.DoModal() == IDOK)
 	{
 		//打开对话框获取图像信息
-		CString BmpName = dlg.GetPathName();     //获取文件路径名   
-		CString EntName = dlg.GetFileExt();      //获取文件扩展名
+		BmpName = dlg.GetPathName();     //获取文件路径名   
+	    EntName = dlg.GetFileExt();      //获取文件扩展名
 		EntName.MakeLower();                     //将文件扩展名转换为一个小写字符
 
 		if (EntName.Compare(_T("bmp")) == 0)  //如果是bmp图片则打开显示
@@ -330,13 +338,14 @@ void CMFCApplication1Dlg::OnBnClickedButtonHsv2rgb()
 LRESULT CMFCApplication1Dlg::UserMessageHandler(WPARAM w, LPARAM l)
 {
 	// guangjie2333的设计
+	//((CStatic*)GetDlgItem(IDC_STATIC_PICTURE2))->SetBitmap(NULL);	//清除原有图像
 
 	/*按理说 WPARAM w应该是一个实际值，但是我通过指针转换的方式传入了地址
 	  现在拿到了地址后，我有两件事情要做 ： 
-	  1. 把地址的解析方式从(WPARAM*) 改成 (HSV_SLIDER_STRUCT*)
+	  1. 把地址的解析方式从(int) 改成 (HSV_SLIDER_STRUCT*)
 	  2. 把结构体中的值取出来
 	  */
-	HSV_SLIDER_STRUCT* hsv_slider_val = (HSV_SLIDER_STRUCT*)w; 
+	HSV_SLIDER_STRUCT hsv_slider_val = *(HSV_SLIDER_STRUCT*)w;
 
 	float hScale, sScale, vScale;
 	int r, g, b;
@@ -354,8 +363,6 @@ LRESULT CMFCApplication1Dlg::UserMessageHandler(WPARAM w, LPARAM l)
 	  
 	  */
 
-	int pixel_count = bmpdata.bmpInfo.biWidth * bmpdata.bmpInfo.biHeight; //通过 宽 * 高 计算像素个数
-
 	USER_RGB_HSV_CLASS userClass_rgb_hsv;                           //用户自定义的 hsv—rgb 转换类
 	HSV_STRUCT hsv_struct;                                          //用户自定义的 hsv结构体
 	RGB_STRUCT rgb_struct;											//用户自定义的 rgb结构体
@@ -363,16 +370,12 @@ LRESULT CMFCApplication1Dlg::UserMessageHandler(WPARAM w, LPARAM l)
 	//拷贝原数据
 	DWORD dataBytes = bmpdata.bmpHeader.bfSize - bmpdata.bmpHeader.bfOffBits;//图像数据大小，单位为字节
 	BYTE* pixelArray = (BYTE*)new char[dataBytes];
-	for (int i = 0; i < dataBytes; i++)
-	{
-		pixelArray[i] = bmpdata.pBmpData[i];
-	}
+	memcpy(pixelArray, bmpdata.pBmpData, dataBytes);
 
-
-	Cal_HSV_Scale(*hsv_slider_val, &hScale, &sScale, &vScale);      //计算缩放系数
+	Cal_HSV_Scale(hsv_slider_val, &hScale, &sScale, &vScale);      //计算缩放系数
 
 	//逐个像素进行转换
-	for (int i = 0; i < pixel_count; i++)
+	for (int i = 0; i < dataBytes; i = i + 3)
 	{
 		rgb_struct.b = pixelArray[i + 0];
 		rgb_struct.g = pixelArray[i + 1];
@@ -394,7 +397,7 @@ LRESULT CMFCApplication1Dlg::UserMessageHandler(WPARAM w, LPARAM l)
 
 	//显示图像2	
 	CWnd* pWnd = GetDlgItem(IDC_STATIC_PICTURE2);					//获得pictrue控件窗口的句柄	
-	((CStatic*)GetDlgItem(IDC_STATIC_PICTURE2))->SetBitmap(NULL);	//清除原有图像
+	
 	CRect rect;
 	pWnd->GetClientRect(&rect);										//获得pictrue控件所在的矩形区域			
 	CDC* pDC = pWnd->GetDC();										//获得pictrue控件的DC			
@@ -404,7 +407,7 @@ LRESULT CMFCApplication1Dlg::UserMessageHandler(WPARAM w, LPARAM l)
 	memcpy(pBmpInfo, &bmpdata.bmpInfo, sizeof(BITMAPINFOHEADER)); 
 	StretchDIBits(pDC->GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0, bmpdata.bmpInfo.biWidth, bmpdata.bmpInfo.biHeight, pixelArray, pBmpInfo, DIB_RGB_COLORS, SRCCOPY);
 
-	TRACE("数据传输成功了吗？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？");
+	delete []pixelArray;
 	return LRESULT();
 }
 
@@ -414,7 +417,7 @@ void Cal_HSV_Scale(HSV_SLIDER_STRUCT hsv_slider_struct, float* hScale, float* sS
 {
 	// guangjie2333的设计
 
-	*hScale = (hsv_slider_struct.H_slider - 50) / 50 + 1; //50作为基准，小于50就按比例缩小，大于50按比例放大
-	*sScale = (hsv_slider_struct.S_slider - 50) / 50 + 1;
-	*vScale = (hsv_slider_struct.V_slider - 50) / 50 + 1;
+	*hScale = (float)(hsv_slider_struct.H_slider - 50) / 50 + 1; //50作为基准，小于50就按比例缩小，大于50按比例放大
+	*sScale = (float)(hsv_slider_struct.S_slider - 50) / 50 + 1;
+	*vScale = (float)(hsv_slider_struct.V_slider - 50) / 50 + 1;
 }

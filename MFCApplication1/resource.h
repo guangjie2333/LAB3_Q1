@@ -26,14 +26,13 @@
 #define IDC_SLIDER_V                    1020
 #define IDC_EDIT_Slider_H               1021
 #define IDC_EDIT_Slider_S               1022
-#define IDC_EDIT3                       1023
 #define IDC_EDIT_Slider_V               1023
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        135
+#define _APS_NEXT_RESOURCE_VALUE        137
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1022
 #define _APS_NEXT_SYMED_VALUE           101

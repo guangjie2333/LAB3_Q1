@@ -1,3 +1,10 @@
+/*
+作者 ：guangjie2333
+时间 ：2021.10.5
+单位 ：SZU
+版本 ：V1.0.0
+*/
+
 #include "pch.h"
 #include "USER_RGB_HSV_CLASS.h"
 
@@ -65,17 +72,21 @@ HSV_STRUCT USER_RGB_HSV_CLASS:: RGB2HSV(RGB_STRUCT rgb)
     {
         hsv.h = 0;
     }
-    else if (R == max)
+    else if (R == max && G >= B)
     {
-        hsv.h = (int)((int)((G-B)/delta)%6)*60;
+        hsv.h = (int)((G-B)/delta*60);
+    }
+    else if (R == max && G < B)
+    {
+        hsv.h = 360 + (int)((G - B) / delta * 60);
     }
     else if (G == max)
     {
-        hsv.h = (int)((B - R) / delta + 2)  * 60;
+        hsv.h = 120 + (int)((B - R) / delta  * 60) ;
     }
     else if (B == max)
     {
-        hsv.h = (int)((R - G) / delta + 4) * 60;
+        hsv.h = 240 + (int)((R - G) / delta  * 60);
     }
 
     //检查范围
@@ -85,35 +96,35 @@ HSV_STRUCT USER_RGB_HSV_CLASS:: RGB2HSV(RGB_STRUCT rgb)
     }
     else
     {
-        TRACE(" RGB2HSV result error");
+        hsv.h = hsv.h % 360;
+        hsv.s = hsv.s > 1 ? 1 : hsv.s;
+        hsv.v = hsv.v > 1 ? 1 : hsv.v;
+        return hsv;
     }
 }
 
 
 //RGB转换为HSV空间的函数
 // 参照：
-//ppt
+//雷老师的ppt 
+/*
+    需要注意的是老师的ppt有问题 ，结果没 * 255 ，花了我两个晚上，我还一直以为是我代码的问题。
+    而且ppt还有一个问题 ： f = H/60 - i;  而不是 f = f % 60;
+    总之，我花了很多时间去找bug，最后发现转换公式这个最基本的地方出了问题
+*/
+
 
 RGB_STRUCT USER_RGB_HSV_CLASS::HSV2RGB(HSV_STRUCT hsv)
 {
-    int H=0;
-    float S, V=0;
-    int p, q, t,i,f;
+    int H= hsv.h%360;
+    float S = hsv.s > 1 ? 1 : hsv.s;
+    float V = hsv.v > 1 ? 1 : hsv.v;
+    float p, q, t;
+    int i, f;
     RGB_STRUCT rgb = {0,0,0};
 
-    if (360 == hsv.h)
-    {
-        H = 0;
-    }
-    else
-    {
-        H = hsv.h;
-    }
-    S = hsv.s;
-    V = hsv.v;
-
     i = H / 60;
-    f = H % 60;
+    f = H/60 - i;
 
     p = V * (1 - S);
     q = V * (1 - S * f);
@@ -122,34 +133,34 @@ RGB_STRUCT USER_RGB_HSV_CLASS::HSV2RGB(HSV_STRUCT hsv)
     switch (i)
     {
     case 0:
-        rgb.r = V;
-        rgb.g = t;
-        rgb.b = p;
+        rgb.r = V * 255;
+        rgb.g = t * 255;
+        rgb.b = p * 255;
         break;
     case 1:
-        rgb.r = q;
-        rgb.g = V;
-        rgb.b = p;
+        rgb.r = q * 255;
+        rgb.g = V * 255;
+        rgb.b = p * 255;
         break;
     case 2:
-        rgb.r = p;
-        rgb.g = V;
-        rgb.b = t;
+        rgb.r = p * 255;
+        rgb.g = V * 255;
+        rgb.b = t * 255;
         break;
     case 3:
-        rgb.r = p;
-        rgb.g = q;
-        rgb.b = V;
+        rgb.r = p * 255;
+        rgb.g = q * 255;
+        rgb.b = V * 255;
         break;
     case 4:
-        rgb.r = t;
-        rgb.g = p;
-        rgb.b = V;
+        rgb.r = t * 255;
+        rgb.g = p * 255;
+        rgb.b = V * 255;
         break;
     case 5:
-        rgb.r = V;
-        rgb.g = p;
-        rgb.b = q;
+        rgb.r = V * 255;
+        rgb.g = p * 255;
+        rgb.b = q * 255;
         break;
     default:
         break;
