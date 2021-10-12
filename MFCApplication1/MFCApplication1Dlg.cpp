@@ -438,6 +438,6 @@ void CMFCApplication1Dlg::MEUN_LAB3_Button1_Up()
 {
 	// TODO: 在此添加命令处理程序代码
 	USER_LINE_CHANGE_Dlg dlg;
-
+	dlg.phwnd = m_hWnd;
 	dlg.DoModal();
 }

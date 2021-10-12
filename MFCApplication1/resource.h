@@ -18,6 +18,8 @@
 #define IDC_EDIT_G                      1006
 #define IDC_EDIT_B                      1007
 #define IDC_STATIC_PICTURE              1008
+#define IDC_EDIT_B2                     1008
+#define IDC_EDIT_A                      1008
 #define IDC_EDIT_H                      1009
 #define IDC_EDIT_S                      1010
 #define IDC_EDIT_V                      1011
@@ -28,9 +30,7 @@
 #define IDC_SLIDER_V                    1020
 #define IDC_EDIT_Slider_H               1021
 #define IDC_EDIT_Slider_S               1022
-#define IDC_EDIT1                       1022
 #define IDC_EDIT_Slider_V               1023
-#define IDC_EDIT2                       1023
 #define ID_32774                        32774
 #define ID_32775                        32775
 #define ID_32776                        32776

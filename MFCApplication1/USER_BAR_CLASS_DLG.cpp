@@ -37,8 +37,6 @@ void USER_BAR_CLASS_DLG::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SLIDER_S, m_SliderS);
 	DDX_Control(pDX, IDC_SLIDER_H, m_SliderH);
 
-
-
 }
 
 

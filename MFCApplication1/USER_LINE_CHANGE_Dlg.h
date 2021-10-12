@@ -5,9 +5,11 @@
 
 class USER_LINE_CHANGE_Dlg : public CDialogEx
 {
+	
 	DECLARE_DYNAMIC(USER_LINE_CHANGE_Dlg)
 
 public:
+	HWND phwnd;				//窗口变量，用于两个窗口之间传输值
 	USER_LINE_CHANGE_Dlg(CWnd* pParent = nullptr);   // 标准构造函数
 	virtual ~USER_LINE_CHANGE_Dlg();
 
@@ -22,4 +24,5 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void Button_Up();
+	afx_msg void OnBnClickedOk();
 };

@@ -18,6 +18,8 @@ using namespace std;
 
 /***********************结构体定义区******************************/
 
+/*lab2*/
+
 //RGB结构体定义
 typedef struct
 {
@@ -50,3 +52,12 @@ typedef struct
     BITMAPINFOHEADER bmpInfo;   //信息头
     CFile bmpFile;              //记录打开文件
 }bmpData;
+
+
+/*lab3*/
+
+typedef  struct
+{
+    int a; //线性变换系数a
+    int b; //线性变换系数b
+}LINE_CHANGE_STRUCT;
