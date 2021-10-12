@@ -42,6 +42,9 @@
     <ClInclude Include="USER_DEFINE.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="USER_LINE_CHANGE_Dlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFCApplication1.cpp">
@@ -57,6 +60,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="USER_BAR_CLASS_DLG.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="USER_LINE_CHANGE_Dlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -13,6 +13,7 @@
 #include "MFCApplication1.h"
 #include "MFCApplication1Dlg.h"
 #include "afxdialogex.h"
+#include "USER_LINE_CHANGE_Dlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -90,6 +91,7 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_WM_MOUSEMOVE()
 	ON_BN_CLICKED(IDC_BUTTON_HSV2RGB, &CMFCApplication1Dlg::OnBnClickedButtonHsv2rgb)
 	ON_MESSAGE(WM_GET_DIALOG_HSV_SLIDER_VAL, UserMessageHandler) //用户自定义的消息标识和函数的绑定
+	ON_COMMAND(ID_32774, &CMFCApplication1Dlg::MEUN_LAB3_Button1_Up)
 END_MESSAGE_MAP()
 
 
@@ -125,6 +127,11 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	CMenu menu; //可为局部变量
+	menu.LoadMenu(IDR_MENU_MAIN); //加载菜单资源使与CMenu Object相关联
+	SetMenu(&menu); // Sets the current menu to the specified menu( 这是CWnd的函数)
+	menu.Detach(); //这一步很关键，因为menu为局部变量，使用此函数 Detaches a Windows menu
+	//from a CMenu object and returns the handle. 就是说使HMENU与menu这个object相剥离
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -338,7 +345,7 @@ void CMFCApplication1Dlg::OnBnClickedButtonHsv2rgb()
 LRESULT CMFCApplication1Dlg::UserMessageHandler(WPARAM w, LPARAM l)
 {
 	// guangjie2333的设计
-	//((CStatic*)GetDlgItem(IDC_STATIC_PICTURE2))->SetBitmap(NULL);	//清除原有图像
+	((CStatic*)GetDlgItem(IDC_STATIC_PICTURE2))->SetBitmap(NULL);	//清除原有图像
 
 	/*按理说 WPARAM w应该是一个实际值，但是我通过指针转换的方式传入了地址
 	  现在拿到了地址后，我有两件事情要做 ： 
@@ -420,4 +427,17 @@ void Cal_HSV_Scale(HSV_SLIDER_STRUCT hsv_slider_struct, float* hScale, float* sS
 	*hScale = (float)(hsv_slider_struct.H_slider - 50) / 50 + 1; //50作为基准，小于50就按比例缩小，大于50按比例放大
 	*sScale = (float)(hsv_slider_struct.S_slider - 50) / 50 + 1;
 	*vScale = (float)(hsv_slider_struct.V_slider - 50) / 50 + 1;
+}
+
+
+
+
+
+//LAB3
+void CMFCApplication1Dlg::MEUN_LAB3_Button1_Up()
+{
+	// TODO: 在此添加命令处理程序代码
+	USER_LINE_CHANGE_Dlg dlg;
+
+	dlg.DoModal();
 }
