@@ -42,4 +42,5 @@ public:
 	LRESULT UserMessageHandler_NLINE(WPARAM w, LPARAM l); //自己定义的消息处理函数
 	afx_msg void MEUN_LAB3_Button1_Up();
 	afx_msg void MEUN_LAB3_Button2_Up();
+	afx_msg void MEUN_LAB3_Button3_Up();
 };

@@ -15,6 +15,7 @@
 #include "afxdialogex.h"
 #include "USER_LINE_CHANGE_Dlg.h"
 #include "USER_NLINE_CHANGE_Dlg.h"
+#include "USER_PART_LINE_CHANGE_Dlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -97,6 +98,7 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_MESSAGE(WM_GET_DIALOG_NLINE_CHANGE_VAL, UserMessageHandler_NLINE) //用户自定义的消息标识和函数的绑定,用于处理非线性变换窗口
 	ON_COMMAND(ID_32774, &CMFCApplication1Dlg::MEUN_LAB3_Button1_Up)
 	ON_COMMAND(ID_32775, &CMFCApplication1Dlg::MEUN_LAB3_Button2_Up)
+	ON_COMMAND(ID_32776, &CMFCApplication1Dlg::MEUN_LAB3_Button3_Up)
 END_MESSAGE_MAP()
 
 
@@ -568,6 +570,17 @@ void CMFCApplication1Dlg::MEUN_LAB3_Button2_Up()
 
 	//非线性变换
 	USER_NLINE_CHANGE_Dlg dlg;
+	dlg.phwnd = m_hWnd;
+	dlg.DoModal();
+}
+
+
+void CMFCApplication1Dlg::MEUN_LAB3_Button3_Up()
+{
+	// TODO: 在此添加命令处理程序代码
+
+	//分段线性变换
+	USER_PART_LINE_CHANGE_Dlg dlg;
 	dlg.phwnd = m_hWnd;
 	dlg.DoModal();
 }

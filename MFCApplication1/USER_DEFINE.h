@@ -72,3 +72,14 @@ typedef  struct
     float b; //非线性变换系数b
     float c; //非线性变换系数c
 }NLINE_CHANGE_STRUCT;
+
+typedef  struct
+{
+    int a; 
+    int b; 
+    int c; 
+    int d;
+    int Mg;
+    int Mf;
+
+}PART_LINE_CHANGE_STRUCT;

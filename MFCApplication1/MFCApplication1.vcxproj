@@ -193,6 +193,7 @@
     <ClInclude Include="USER_DEFINE.h" />
     <ClInclude Include="USER_LINE_CHANGE_Dlg.h" />
     <ClInclude Include="USER_NLINE_CHANGE_Dlg.h" />
+    <ClInclude Include="USER_PART_LINE_CHANGE_Dlg.h" />
     <ClInclude Include="USER_RGB_HSV_CLASS.h" />
   </ItemGroup>
   <ItemGroup>
@@ -207,6 +208,7 @@
     <ClCompile Include="USER_BAR_CLASS_DLG.cpp" />
     <ClCompile Include="USER_LINE_CHANGE_Dlg.cpp" />
     <ClCompile Include="USER_NLINE_CHANGE_Dlg.cpp" />
+    <ClCompile Include="USER_PART_LINE_CHANGE_Dlg.cpp" />
     <ClCompile Include="USER_RGB_HSV_CLASS.cpp" />
   </ItemGroup>
   <ItemGroup>

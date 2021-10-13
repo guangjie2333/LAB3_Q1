@@ -48,6 +48,9 @@
     <ClInclude Include="USER_NLINE_CHANGE_Dlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="USER_PART_LINE_CHANGE_Dlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MFCApplication1.cpp">
@@ -69,6 +72,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="USER_NLINE_CHANGE_Dlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="USER_PART_LINE_CHANGE_Dlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
