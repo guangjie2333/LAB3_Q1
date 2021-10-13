@@ -37,6 +37,7 @@ public:
 	afx_msg void OnBnClickedButtonOpenbmp();
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnBnClickedButtonHsv2rgb();
-	LRESULT UserMessageHandler(WPARAM w, LPARAM l); //自己定义的消息处理函数
+	LRESULT UserMessageHandler_HSV(WPARAM w, LPARAM l); //自己定义的消息处理函数
+	LRESULT UserMessageHandler_LINE(WPARAM w, LPARAM l); //自己定义的消息处理函数
 	afx_msg void MEUN_LAB3_Button1_Up();
 };

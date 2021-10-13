@@ -113,5 +113,5 @@ void USER_LINE_CHANGE_Dlg::OnBnClickedOk()
 	line_change_struct.a = a;
 	line_change_struct.b = b;
 
-	::SendMessage(phwnd, WM_GET_DIALOG_HSV_SLIDER_VAL, (WPARAM)&line_change_struct, 0);
+	::SendMessage(phwnd, WM_GET_DIALOG_LINE_CHANGE_VAL, (WPARAM)&line_change_struct, 0);
 }

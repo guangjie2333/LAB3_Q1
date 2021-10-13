@@ -13,7 +13,10 @@ using namespace std;
 
 /*************************宏定义区*******************************/
 
-#define WM_GET_DIALOG_HSV_SLIDER_VAL		(WM_USER + 200)            //该变量用于两个窗口之间传递信息
+/*两个窗口之间传递信息*/
+#define WM_GET_DIALOG_HSV_SLIDER_VAL		(WM_USER + 1)         //  IDD_MFCAPPLICATION1_DIALOG  -  IDD_DIALOG1
+#define WM_GET_DIALOG_LINE_CHANGE_VAL       (WM_USER + 2)         //  IDD_MFCAPPLICATION1_DIALOG  -  IDD_DIALOG_LINER
+
 
 
 /***********************结构体定义区******************************/

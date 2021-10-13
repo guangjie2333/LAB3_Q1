@@ -30,6 +30,7 @@
 bmpData bmpdata;
 CString BmpName;
 CString EntName;
+DWORD   DataBytes;
 
 /***************内部函数声明***************/
 void Cal_HSV_Scale(HSV_SLIDER_STRUCT hsv_slider_struct,float *hScale, float* sScale, float* vScale);  //调节滚动条实际上是在调节缩放系数
@@ -90,7 +91,8 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_OPENBMP, &CMFCApplication1Dlg::OnBnClickedButtonOpenbmp)
 	ON_WM_MOUSEMOVE()
 	ON_BN_CLICKED(IDC_BUTTON_HSV2RGB, &CMFCApplication1Dlg::OnBnClickedButtonHsv2rgb)
-	ON_MESSAGE(WM_GET_DIALOG_HSV_SLIDER_VAL, UserMessageHandler) //用户自定义的消息标识和函数的绑定
+	ON_MESSAGE(WM_GET_DIALOG_HSV_SLIDER_VAL, UserMessageHandler_HSV)   //用户自定义的消息标识和函数的绑定,用于处理hsv窗口
+	ON_MESSAGE(WM_GET_DIALOG_LINE_CHANGE_VAL, UserMessageHandler_LINE) //用户自定义的消息标识和函数的绑定,用于处理线性变换窗口
 	ON_COMMAND(ID_32774, &CMFCApplication1Dlg::MEUN_LAB3_Button1_Up)
 END_MESSAGE_MAP()
 
@@ -221,10 +223,10 @@ void CMFCApplication1Dlg::OnBnClickedButtonOpenbmp()
 			pBmpInfo = (BITMAPINFO*)new char[sizeof(BITMAPINFOHEADER)];
 			//为图像数据申请空间
 			memcpy(pBmpInfo, &bmpdata.bmpInfo, sizeof(BITMAPINFOHEADER));  //存储图像信息头内容
-			DWORD dataBytes = bmpdata.bmpHeader.bfSize - bmpdata.bmpHeader.bfOffBits;//图像数据大小，单位为字节
-			bmpdata.pBmpData = (BYTE*)new char[dataBytes];
+			DataBytes = bmpdata.bmpHeader.bfSize - bmpdata.bmpHeader.bfOffBits;//图像数据大小，单位为字节
+			bmpdata.pBmpData = (BYTE*)new char[DataBytes];
 			bmpdata.bmpFile.Seek(bmpdata.bmpHeader.bfOffBits,0);//这一步非常重要，必须要把文件指针偏移
-			bmpdata.bmpFile.Read(bmpdata.pBmpData, dataBytes);  //存储图像数据(以文件指针为起点开始读dataBytes个数据)
+			bmpdata.bmpFile.Read(bmpdata.pBmpData, DataBytes);  //存储图像数据(以文件指针为起点开始读dataBytes个数据)
 			bmpdata.bmpFile.Close();
 
 			//显示图像1	
@@ -341,8 +343,9 @@ void CMFCApplication1Dlg::OnBnClickedButtonHsv2rgb()
 	                                   
 }
 
-//用户自定义的消息处理函数
-LRESULT CMFCApplication1Dlg::UserMessageHandler(WPARAM w, LPARAM l)
+//用户自定义的消息标识和函数的绑定,用于处理hsv窗口
+
+LRESULT CMFCApplication1Dlg::UserMessageHandler_HSV(WPARAM w, LPARAM l)
 {
 	// guangjie2333的设计
 	((CStatic*)GetDlgItem(IDC_STATIC_PICTURE2))->SetBitmap(NULL);	//清除原有图像
@@ -375,14 +378,13 @@ LRESULT CMFCApplication1Dlg::UserMessageHandler(WPARAM w, LPARAM l)
 	RGB_STRUCT rgb_struct;											//用户自定义的 rgb结构体
 
 	//拷贝原数据
-	DWORD dataBytes = bmpdata.bmpHeader.bfSize - bmpdata.bmpHeader.bfOffBits;//图像数据大小，单位为字节
-	BYTE* pixelArray = (BYTE*)new char[dataBytes];
-	memcpy(pixelArray, bmpdata.pBmpData, dataBytes);
+	BYTE* pixelArray = (BYTE*)new char[DataBytes];
+	memcpy(pixelArray, bmpdata.pBmpData, DataBytes);
 
 	Cal_HSV_Scale(hsv_slider_val, &hScale, &sScale, &vScale);      //计算缩放系数
 
 	//逐个像素进行转换
-	for (int i = 0; i < dataBytes; i = i + 3)
+	for (int i = 0; i < DataBytes; i = i + 3)
 	{
 		rgb_struct.b = pixelArray[i + 0];
 		rgb_struct.g = pixelArray[i + 1];
@@ -419,7 +421,65 @@ LRESULT CMFCApplication1Dlg::UserMessageHandler(WPARAM w, LPARAM l)
 }
 
 
-//内部函数实现
+//用户自定义的消息标识和函数的绑定,用于处理线性变换窗口
+LRESULT CMFCApplication1Dlg::UserMessageHandler_LINE(WPARAM w, LPARAM l)
+{
+	int a, b;														//线性变换的系数
+	RGB_STRUCT rgb_struct;											//用户自定义的 rgb结构体
+
+	LINE_CHANGE_STRUCT line_change_struct = *(LINE_CHANGE_STRUCT*)w;
+	a = line_change_struct.a;
+	b = line_change_struct.b;
+
+	//拷贝原数据
+	BYTE* pixelArray = (BYTE*)new char[DataBytes];
+	memcpy(pixelArray, bmpdata.pBmpData, DataBytes);
+
+	//逐个像素进行转换
+	for (int i = 0; i < DataBytes; i = i + 3)
+	{
+		rgb_struct.b = pixelArray[i + 0];
+		rgb_struct.g = pixelArray[i + 1];
+		rgb_struct.r = pixelArray[i + 2];
+
+		pixelArray[i + 0] = rgb_struct.b * a + b;					//线性变换
+		pixelArray[i + 1] = rgb_struct.g * a + b;
+		pixelArray[i + 2] = rgb_struct.r * a + b;
+
+		pixelArray[i + 0] = (pixelArray[i + 0] < 255) ? pixelArray[i + 0] : 255;
+		pixelArray[i + 1] = (pixelArray[i + 1] < 255) ? pixelArray[i + 1] : 255;
+		pixelArray[i + 2] = (pixelArray[i + 2] < 255) ? pixelArray[i + 2] : 255;
+	}
+
+	//显示图像2	
+	CWnd* pWnd = GetDlgItem(IDC_STATIC_PICTURE2);					//获得pictrue控件窗口的句柄	
+
+	CRect rect;
+	pWnd->GetClientRect(&rect);										//获得pictrue控件所在的矩形区域			
+	CDC* pDC = pWnd->GetDC();										//获得pictrue控件的DC			
+	pDC->SetStretchBltMode(COLORONCOLOR);
+
+	BITMAPINFO* pBmpInfo = (BITMAPINFO*)new char[sizeof(BITMAPINFOHEADER)];
+	memcpy(pBmpInfo, &bmpdata.bmpInfo, sizeof(BITMAPINFOHEADER));
+	StretchDIBits(pDC->GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0, bmpdata.bmpInfo.biWidth, bmpdata.bmpInfo.biHeight, pixelArray, pBmpInfo, DIB_RGB_COLORS, SRCCOPY);
+
+	delete[]pixelArray;
+	return LRESULT();
+}
+
+
+
+
+
+
+
+/******************************************************************************************************************
+
+内部函数实现
+
+*******************************************************************************************************************/
+
+
 void Cal_HSV_Scale(HSV_SLIDER_STRUCT hsv_slider_struct, float* hScale, float* sScale, float* vScale)
 {
 	// guangjie2333的设计
