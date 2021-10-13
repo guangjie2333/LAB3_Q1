@@ -14,6 +14,7 @@
 #include "MFCApplication1Dlg.h"
 #include "afxdialogex.h"
 #include "USER_LINE_CHANGE_Dlg.h"
+#include "USER_NLINE_CHANGE_Dlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -93,7 +94,9 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_HSV2RGB, &CMFCApplication1Dlg::OnBnClickedButtonHsv2rgb)
 	ON_MESSAGE(WM_GET_DIALOG_HSV_SLIDER_VAL, UserMessageHandler_HSV)   //用户自定义的消息标识和函数的绑定,用于处理hsv窗口
 	ON_MESSAGE(WM_GET_DIALOG_LINE_CHANGE_VAL, UserMessageHandler_LINE) //用户自定义的消息标识和函数的绑定,用于处理线性变换窗口
+	ON_MESSAGE(WM_GET_DIALOG_NLINE_CHANGE_VAL, UserMessageHandler_NLINE) //用户自定义的消息标识和函数的绑定,用于处理非线性变换窗口
 	ON_COMMAND(ID_32774, &CMFCApplication1Dlg::MEUN_LAB3_Button1_Up)
+	ON_COMMAND(ID_32775, &CMFCApplication1Dlg::MEUN_LAB3_Button2_Up)
 END_MESSAGE_MAP()
 
 
@@ -129,11 +132,11 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+
 	CMenu menu; //可为局部变量
 	menu.LoadMenu(IDR_MENU_MAIN); //加载菜单资源使与CMenu Object相关联
 	SetMenu(&menu); // Sets the current menu to the specified menu( 这是CWnd的函数)
 	menu.Detach(); //这一步很关键，因为menu为局部变量，使用此函数 Detaches a Windows menu
-	//from a CMenu object and returns the handle. 就是说使HMENU与menu这个object相剥离
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -358,7 +361,6 @@ LRESULT CMFCApplication1Dlg::UserMessageHandler_HSV(WPARAM w, LPARAM l)
 	HSV_SLIDER_STRUCT hsv_slider_val = *(HSV_SLIDER_STRUCT*)w;
 
 	float hScale, sScale, vScale;
-	int r, g, b;
 
 	/*为了避免对原数据进行修改，新建一个图像存储结构体
 	  
@@ -449,6 +451,10 @@ LRESULT CMFCApplication1Dlg::UserMessageHandler_LINE(WPARAM w, LPARAM l)
 		pixelArray[i + 0] = (pixelArray[i + 0] < 255) ? pixelArray[i + 0] : 255;
 		pixelArray[i + 1] = (pixelArray[i + 1] < 255) ? pixelArray[i + 1] : 255;
 		pixelArray[i + 2] = (pixelArray[i + 2] < 255) ? pixelArray[i + 2] : 255;
+
+		pixelArray[i + 0] = (pixelArray[i + 0] < 0) ? 0 : pixelArray[i + 0];
+		pixelArray[i + 1] = (pixelArray[i + 1] < 0) ? 0 : pixelArray[i + 1];
+		pixelArray[i + 2] = (pixelArray[i + 2] < 0) ? 0 : pixelArray[i + 2];
 	}
 
 	//显示图像2	
@@ -469,7 +475,58 @@ LRESULT CMFCApplication1Dlg::UserMessageHandler_LINE(WPARAM w, LPARAM l)
 
 
 
+//用户自定义的消息标识和函数的绑定,用于处理非线性变换窗口
+LRESULT CMFCApplication1Dlg::UserMessageHandler_NLINE(WPARAM w, LPARAM l)
+{
+	/*说实话，非线性变换的系数怎么取值我是么搞明白的*/
 
+	float a, b ,c;														//线性变换的系数
+	RGB_STRUCT rgb_struct;											//用户自定义的 rgb结构体
+
+	NLINE_CHANGE_STRUCT nline_change_struct = *(NLINE_CHANGE_STRUCT*)w;
+	a = nline_change_struct.a;
+	b = nline_change_struct.b;
+	c = nline_change_struct.c;
+
+	//拷贝原数据
+	BYTE* pixelArray = (BYTE*)new char[DataBytes];
+	memcpy(pixelArray, bmpdata.pBmpData, DataBytes);
+
+	//逐个像素进行转换
+	for (int i = 0; i < DataBytes; i = i + 3)
+	{
+		rgb_struct.b = pixelArray[i + 0];
+		rgb_struct.g = pixelArray[i + 1];
+		rgb_struct.r = pixelArray[i + 2];
+
+		pixelArray[i + 0] = a + log(rgb_struct.b + 1) / (b * log(c));					//非线性变换
+		pixelArray[i + 1] = a + log(rgb_struct.g + 1) / (b * log(c));
+		pixelArray[i + 2] = a + log(rgb_struct.r + 1) / (b * log(c));
+
+		pixelArray[i + 0] = (pixelArray[i + 0] < 255) ? pixelArray[i + 0] : 255;
+		pixelArray[i + 1] = (pixelArray[i + 1] < 255) ? pixelArray[i + 1] : 255;
+		pixelArray[i + 2] = (pixelArray[i + 2] < 255) ? pixelArray[i + 2] : 255;
+
+		pixelArray[i + 0] = (pixelArray[i + 0] < 0) ? 0 : pixelArray[i + 0];
+		pixelArray[i + 1] = (pixelArray[i + 1] < 0) ? 0 : pixelArray[i + 1];
+		pixelArray[i + 2] = (pixelArray[i + 2] < 0) ? 0 : pixelArray[i + 2];
+	}
+
+	//显示图像2	
+	CWnd* pWnd = GetDlgItem(IDC_STATIC_PICTURE2);					//获得pictrue控件窗口的句柄	
+
+	CRect rect;
+	pWnd->GetClientRect(&rect);										//获得pictrue控件所在的矩形区域			
+	CDC* pDC = pWnd->GetDC();										//获得pictrue控件的DC			
+	pDC->SetStretchBltMode(COLORONCOLOR);
+
+	BITMAPINFO* pBmpInfo = (BITMAPINFO*)new char[sizeof(BITMAPINFOHEADER)];
+	memcpy(pBmpInfo, &bmpdata.bmpInfo, sizeof(BITMAPINFOHEADER));
+	StretchDIBits(pDC->GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0, bmpdata.bmpInfo.biWidth, bmpdata.bmpInfo.biHeight, pixelArray, pBmpInfo, DIB_RGB_COLORS, SRCCOPY);
+
+	delete[]pixelArray;
+	return LRESULT();
+}
 
 
 
@@ -497,7 +554,20 @@ void Cal_HSV_Scale(HSV_SLIDER_STRUCT hsv_slider_struct, float* hScale, float* sS
 void CMFCApplication1Dlg::MEUN_LAB3_Button1_Up()
 {
 	// TODO: 在此添加命令处理程序代码
+
+	//线性变换
 	USER_LINE_CHANGE_Dlg dlg;
+	dlg.phwnd = m_hWnd;
+	dlg.DoModal();
+}
+
+
+void CMFCApplication1Dlg::MEUN_LAB3_Button2_Up()
+{
+	// TODO: 在此添加命令处理程序代码
+
+	//非线性变换
+	USER_NLINE_CHANGE_Dlg dlg;
 	dlg.phwnd = m_hWnd;
 	dlg.DoModal();
 }

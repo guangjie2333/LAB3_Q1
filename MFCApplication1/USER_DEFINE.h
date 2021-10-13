@@ -9,6 +9,7 @@
 
 #include <wingdi.h> 
 #include <afx.h>
+#include <math.h>
 using namespace std;
 
 /*************************宏定义区*******************************/
@@ -16,7 +17,7 @@ using namespace std;
 /*两个窗口之间传递信息*/
 #define WM_GET_DIALOG_HSV_SLIDER_VAL		(WM_USER + 1)         //  IDD_MFCAPPLICATION1_DIALOG  -  IDD_DIALOG1
 #define WM_GET_DIALOG_LINE_CHANGE_VAL       (WM_USER + 2)         //  IDD_MFCAPPLICATION1_DIALOG  -  IDD_DIALOG_LINER
-
+#define WM_GET_DIALOG_NLINE_CHANGE_VAL      (WM_USER + 3)         //  IDD_MFCAPPLICATION1_DIALOG  -  IDD_DIALOG_LINER
 
 
 /***********************结构体定义区******************************/
@@ -64,3 +65,10 @@ typedef  struct
     int a; //线性变换系数a
     int b; //线性变换系数b
 }LINE_CHANGE_STRUCT;
+
+typedef  struct
+{
+    float a; //非线性变换系数a
+    float b; //非线性变换系数b
+    float c; //非线性变换系数c
+}NLINE_CHANGE_STRUCT;

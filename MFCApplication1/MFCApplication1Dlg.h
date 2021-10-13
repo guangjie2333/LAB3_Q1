@@ -39,5 +39,7 @@ public:
 	afx_msg void OnBnClickedButtonHsv2rgb();
 	LRESULT UserMessageHandler_HSV(WPARAM w, LPARAM l); //自己定义的消息处理函数
 	LRESULT UserMessageHandler_LINE(WPARAM w, LPARAM l); //自己定义的消息处理函数
+	LRESULT UserMessageHandler_NLINE(WPARAM w, LPARAM l); //自己定义的消息处理函数
 	afx_msg void MEUN_LAB3_Button1_Up();
+	afx_msg void MEUN_LAB3_Button2_Up();
 };
